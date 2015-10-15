@@ -59,7 +59,7 @@ function GM:RenderDisguiseHalo()
 	if client:Team() == 3 then
 		local tr = client:GetPropEyeTrace()
 		if IsValid(tr.Entity) then
-			if tr.HitPos:Distance(tr.StartPos) < 100 then
+			if tr.HitPos:Distance(tr.StartPos) < 200 then
 				if client:CanDisguiseAsProp(tr.Entity) then
 					local col = Color(50, 220, 50)
 					local hullxy, hullz = tr.Entity:GetPropSize()

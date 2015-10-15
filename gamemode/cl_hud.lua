@@ -54,9 +54,11 @@ function GM:HUDPaint()
 end
 
 local helpKeysProps = {
-	{"Left", "Disguise as prop"},
+	{"Left Click", "Disguise as prop (dupe)"},
+	{"Right Click", "Disguise as prop (direct)"},
 	{"C", "Lock prop rotation"},
-	{"F3", "Taunt"}
+	{"F2", "Point Shop"}, 
+	{"F3", "Taunt Menu"}
 }
 
 

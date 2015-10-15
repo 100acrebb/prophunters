@@ -1,0 +1,703 @@
+
+
+Taunts = {}
+TauntCategories = {}
+AllowedTauntSounds = {}
+
+TauntDurationFix = {}
+
+
+
+local function addTaunt(name, snd, pteam, sex, cats, duration)
+	if type(snd) != "table" then snd = {snd} end
+	if #snd == 0 then error("No sounds for " .. name) return end
+
+	
+	
+	
+	local t = {}
+	t.sound = snd
+	t.categories = cats
+	if type(pteam) == "string" then
+		pteam = pteam:lower()
+		if pteam == "prop" || pteam == "props" then
+			t.team = 3
+		elseif pteam == "hunter" || pteam == "hunters" then
+			t.team = 2
+		end
+	else
+		t.team = tonumber(pteam)
+	end
+	if sex && #sex > 0 then
+		t.sex = sex
+		if sex == "both" then
+			t.sex = nil
+		end
+	end
+	t.name = name
+
+	local dur, count = 0, 0
+	for k, v in pairs(snd) do
+		if !AllowedTauntSounds[v] then AllowedTauntSounds[v] = {} end
+		table.insert(AllowedTauntSounds[v], t)
+		--dur = dur + SoundDuration(v)
+		dur = dur + TauntDurationFix[v]
+		count = count + 1
+
+		--if SERVER then
+		--	// network the taunt
+		--	resource.AddFile("sound/" .. v)
+		--end
+	end
+
+	t.soundDuration = dur / count
+	if tonumber(duration) then
+		t.soundDuration = tonumber(duration)
+		t.soundDurationOverride = tonumber(duration)
+	end
+
+	table.insert(Taunts, t)
+	for k, cat in pairs(cats) do
+		if !TauntCategories[cat] then TauntCategories[cat] = {} end
+		table.insert(TauntCategories[cat], t)
+	end
+end
+
+local tempG = {}
+tempG.addTaunt = addTaunt
+
+// inherit from _G
+local meta = {}
+meta.__index = _G
+meta.__newindex = _G
+setmetatable(tempG, meta)
+
+local function loadTaunts(rootFolder)
+	local files, dirs = file.Find(rootFolder .. "*", "LUA")
+	for k, v in pairs(files) do
+		print(rootFolder..v)
+		AddCSLuaFile(rootFolder .. v)
+
+		local name = v:sub(1, -5)
+		local f = CompileFile(rootFolder .. v)
+		if !f then
+			return
+		end
+		setfenv(f, tempG)
+		local b, err = pcall(f)
+
+		local s = SERVER and "Server" or "Client"
+		local b = SERVER and 90 or 0
+		if !b then
+			MsgC(Color(255, 50, 50 + b), s .. " loading taunts failed " .. name .. ".lua\nError: " .. err .. "\n")
+		else
+			MsgC(Color(50, 255, 50 + b), s .. " loaded taunts file " .. name .. ".lua\n")
+		end
+	end
+end
+
+function GM:LoadTaunts()
+	loadTaunts((GM or GAMEMODE).Folder:sub(11) .. "/gamemode/taunts/")
+	loadTaunts("prophunters/taunts/")
+end
+
+
+TauntDurationFix["taunts/thab2/props/achievementunlocked.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/aintnobodygottimeforthat.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/airraidsiren.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/alanalan.mp3"]= 8
+TauntDurationFix["taunts/thab2/props/allaboard.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/allyourbase.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/andygriffithshowtheme.mp3"]= 51
+TauntDurationFix["taunts/thab2/props/angrybirdstheme.mp3"]= 21
+TauntDurationFix["taunts/thab2/props/anotherjobwelldone.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/arrowintheknee.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/arrowinthekneeshort.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/assfuck.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/aycaramba.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/backintime.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/badfeelings.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/badumtss.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/batcat.mp3"]= 21
+TauntDurationFix["taunts/thab2/props/bazinga.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/bond.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/boobies.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/bowserlaugh1.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/bowserlaugh2.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/breakingbad.mp3"]= 18
+TauntDurationFix["taunts/thab2/props/bringonthetrumpets.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/bruh.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/burned.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/capitolonegoat.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/cashregister.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/cavalrycharge.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/cavestory.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/censoredbeep.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/challengeaccepted.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/chan.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/chanchan.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/chewbacca.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/chickensong.mp3"]= 14
+TauntDurationFix["taunts/thab2/props/chocolate.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/chucktesta.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/citywokguy.mp3"]= 18
+TauntDurationFix["taunts/thab2/props/clanglawandorder.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/clockisticking.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/colossusyale.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/consuelano.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/cuek.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/damnitbonnieyouliedtome.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/demomanisspy.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/diepotato.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/dirtybit.mp3"]= 8
+TauntDurationFix["taunts/thab2/props/doeshelooklikeabitch.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/donttasemebro.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/donttouchit.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/dontyouwannalittletasteoftheglory.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/doublepoints.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/doyoufeelluckypunk.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/dramatic.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/droctagonapus.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/drogbaaa.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/drumroll.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/duckhuntdoglaugh.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/dudecouldyoubemoregay.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/dumdumgumgum.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/eagle.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/easypeasylemonsqueezy.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/einszweidreivier.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/emergencyyodel.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/epicmealtimecrow.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/error.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/everdancewiththedevil.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/everyone.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/evillaugh.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/excellent.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/falconpunch.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/fascinating.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/fatality.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/finalfantasyvictory.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/finishhim.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/fivenightsatfreddysscream.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/flyingbird.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/fuckoff.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/fusrodah.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/gameoverman.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/gayfish.mp3"]= 25
+TauntDurationFix["taunts/thab2/props/gayluigi.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/gentlemen.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/getoutofheredewey.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/getthatcornoutofmyface.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/getthefuckoutmyfacewiththatshit.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/gianthamsandwhich.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/giggitygiggity.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/gobbluthchickendance.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/godzillaroar.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/gofuckyourself.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/gong.mp3"]= 9
+TauntDurationFix["taunts/thab2/props/goodnewseveryone.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/greatscott.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/greatsuccess.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/gunshots.mp3"]= 9
+TauntDurationFix["taunts/thab2/props/haaaax.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hadouken.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/haha.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hallelujahlong.mp3"]= 10
+TauntDurationFix["taunts/thab2/props/hallelujahshort.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/happycow.mp3"]= 21
+TauntDurationFix["taunts/thab2/props/happytreefriends.mp3"]= 16
+TauntDurationFix["taunts/thab2/props/harlemshake.mp3"]= 31
+TauntDurationFix["taunts/thab2/props/hastalavistababy.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/headshot.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hehhehalright.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/helloooo.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/heyapple.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/hideyokids.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/highfive.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hodor.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hodorhodor.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/holdit.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/hollowichigolaugh.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/hotelmariono.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/howarddeansscream.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/hulksmash.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/iamthegreatcornholio.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/icanseethefuture.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/icantbelivethathappend.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/idontwanttoliveonthisplanetanymore.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/idowhatiwant.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/ihavenoidea.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/ijustwantedtocuddle.mp3"]= 8
+TauntDurationFix["taunts/thab2/props/iliketrains.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/illbeback.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/illmakehimanoffer.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/ilovelamp.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/imbackbaby.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/imbadass.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/imoldgregg.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/imoldgregglong.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/imrickjamesbitch.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/imyourfather.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/inamerica.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/iseeyou.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/issuchathingevenpossible.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/itsadinosaur.mp3"]= 26
+TauntDurationFix["taunts/thab2/props/itsaverynice.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/itsclobberintime.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/itsgone.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/itsmorphintime.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/itspeanutbutterjellytime.mp3"]= 37
+TauntDurationFix["taunts/thab2/props/itstimetoduel.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/iwanttoplayagame.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/iwasfrozentoday.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/jeopardy.mp3"]= 33
+TauntDurationFix["taunts/thab2/props/justcantgetenough.mp3"]= 11
+TauntDurationFix["taunts/thab2/props/justdoit.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/kamehameha.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/kelsoburn.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/khaaaaaan.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/knife.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/kylesmomisabitch.mp3"]= 31
+TauntDurationFix["taunts/thab2/props/lalalalala.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/lazor.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/leavebritneyalone.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/legendary.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/lexluthorwrong.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/lightsaberon.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/liveordie.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/looneytunes.mp3"]= 10
+TauntDurationFix["taunts/thab2/props/lotsaspaghetti.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mahboi.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/makinbaconpancakes.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/mario.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/mariocoin.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mathematical.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mbisonofcourse.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mbisonyesyes.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/merrychristmasyoufilthyanimal.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/mineturtlehello.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mmmwhatchasay.mp3"]= 32
+TauntDurationFix["taunts/thab2/props/monsieurhood.mp3"]= 39
+TauntDurationFix["taunts/thab2/props/monsterkill.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/mordorhorn.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/more.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/moreinput.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/morphingtime.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/moseisleycantina.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/motherfuckingsnakes.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/mudkip.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/murloc.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/musicaldoodle.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/myleg.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/mymom.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/myprecious.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/narwhals.mp3"]= 34
+TauntDurationFix["taunts/thab2/props/nazgulscream.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/nba.mp3"]= 13
+TauntDurationFix["taunts/thab2/props/needadispenserhere.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/nein.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/nemesisstars.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/nerdslaughing.mp3"]= 9
+TauntDurationFix["taunts/thab2/props/nighttimedaytime.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/nightvision.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/nobodyexpectsthespanishinquisitionlong.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/nobodyexpectsthespanishinquisitionshort.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/nodaddynooooo.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/nodisassemble.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/nofuckincookies.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/nooo.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/nope.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/norunningaroundthepool.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/nostalgiacriticnerrrrrd.mp3"]= 23
+TauntDurationFix["taunts/thab2/props/nostalgiacriticthelaw.mp3"]= 14
+TauntDurationFix["taunts/thab2/props/nothisispatrick.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/noythatwouldbeyourmother.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/objection.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/ohlongjohnson.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/ohmy.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/ohmygod.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/ohmygodidontcare.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/ohmygodtheykilledkenny.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/ohpieceofcandy.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/ohthatsnasty.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/ohyeahwakeupyeah.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/omgtrampoline.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/omgwhothehellcares.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/ommmm.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/onedoesnotsimplywalkintomordor.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/onemilliondollars.mp3"]= 10
+TauntDurationFix["taunts/thab2/props/pacmantheme.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/pastaaa.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/patricstarlelelele.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/paythatmanhismoney.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/pedobearsong.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/penny.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/petergriffin.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/pikachu.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/pingas.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/pirate.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/pokeballsound.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/pootis.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/popeye.mp3"]= 28
+TauntDurationFix["taunts/thab2/props/powhaha.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/protectthedarkness.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/punishhim.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/putthatcookiedown.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/r2d2.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/rabbids.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/rainbowsmakemecry.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/rayliottalaughing.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/residentevil.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/respectmyauthoritah.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/retardalert.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/riiight.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/ringringring.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/sadtrombone.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/sadtuba.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/safetytorch.mp3"]= 14
+TauntDurationFix["taunts/thab2/props/sandwichmakemestrong.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/satellitephone.mp3"]= 6
+TauntDurationFix["taunts/thab2/props/sayhellotomylittlefriend.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/saymyname.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/screwyouguysimgoinghome.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/scusemewhileiwhipthisout.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/sheriffcalliesyeehaw.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/shoother.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/shutthefuckup.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/shutup.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/shutupandtakemymoney.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/shutupmeg.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/silenceikillyou.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/slowclap.mp3"]= 8
+TauntDurationFix["taunts/thab2/props/solonggayboys.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/sonicrings.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/spanishflea.mp3"]= 13
+TauntDurationFix["taunts/thab2/props/sparesomechange.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/spiderpig.mp3"]= 14
+TauntDurationFix["taunts/thab2/props/spinwithmechris.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/stophammertime.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/surprisemotherfucker.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/swanee.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/tada.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/tardis.mp3"]= 24
+TauntDurationFix["taunts/thab2/props/tedwilliamsvoice.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/thatsahugebitch.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/thatswhatshesaid.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/theballsareinert.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/thegreatmightypoo.mp3"]= 19
+TauntDurationFix["taunts/thab2/props/theresabearinmyoatmeal.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/thetwilightzone.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/theydrewfirstbloodnotme.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/theythinkidontknowaboutthegospel.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/thisismyboomstick.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/thisismydesign.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/thuglife.mp3"]= 12
+TauntDurationFix["taunts/thab2/props/timmy.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/tombriderangelofdarkness.mp3"]= 17
+TauntDurationFix["taunts/thab2/props/trexroar.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/trunksgoesinsane.mp3"]= 8
+TauntDurationFix["taunts/thab2/props/tshirttime.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/tumbleweed.mp3"]= 9
+TauntDurationFix["taunts/thab2/props/unclefucker.mp3"]= 29
+TauntDurationFix["taunts/thab2/props/victoryff.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/victoryismine.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/vindieselsaysfuck.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/voldemortslaugh.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/vuvuzela.mp3"]= 7
+TauntDurationFix["taunts/thab2/props/wakawaka.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/wassup.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/weareanonymous.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/wellywellywell.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/weshouldtakebikinibottom.mp3"]= 5
+TauntDurationFix["taunts/thab2/props/whatsyourfavoritescarymovie.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/whatthedeuce.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/whatthefuck.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/whereismymoneybitch.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/wheresthatfourthchaosemerald.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/whip.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/whoisyourdaddyandwhatishedo.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/whoopwhoopwhoop.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/whowantstohearafunnyassjoke.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/whowantstoplayvideogames.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/whysoserious.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/wilhelmscream.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/winteriscoming.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/wololo.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/wrong.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/wrongwrongwrongwrong.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/yay.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/yeahbuddy.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/yippeekiyaymotherfucker.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/youaresodumb.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/youatethispie.mp3"]= 15
+TauntDurationFix["taunts/thab2/props/yougoodylittletwoshoes.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/youhavefailthiscity.mp3"]= 4
+TauntDurationFix["taunts/thab2/props/youmustdie.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/youpissedmeoff.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/yourmother.mp3"]= 1
+TauntDurationFix["taunts/thab2/props/yourmusicisbad.mp3"]= 3
+TauntDurationFix["taunts/thab2/props/zeldaitem.mp3"]= 2
+TauntDurationFix["taunts/thab2/props/zeldasecret.mp3"]= 2
+
+TauntDurationFix["taunts/thab1/hunters/badboys.mp3"]= 11
+TauntDurationFix["taunts/thab1/hunters/bane_permission.mp3"]= 15
+TauntDurationFix["taunts/thab1/hunters/batman.mp3"]= 1
+TauntDurationFix["taunts/thab1/hunters/blow_it.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/boom_headshot.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/chewbacca.mp3"]= 8
+TauntDurationFix["taunts/thab1/hunters/combo_breaker.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/come_at_me.mp3"]= 1
+TauntDurationFix["taunts/thab1/hunters/come_get_some.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/cookiemonster.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/dredd.mp3"]= 7
+TauntDurationFix["taunts/thab1/hunters/exterminate.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/find_you.mp3"]= 11
+TauntDurationFix["taunts/thab1/hunters/gassy_mexican.mp3"]= 1
+TauntDurationFix["taunts/thab1/hunters/getoverhere.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/glados-president.mp3"]= 5
+TauntDurationFix["taunts/thab1/hunters/gun_bigger.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/guttinyouboy.mp3"]= 10
+TauntDurationFix["taunts/thab1/hunters/h1-2.mp3"]= 5
+TauntDurationFix["taunts/thab1/hunters/h1-3.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-4.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-5.mp3"]= 9
+TauntDurationFix["taunts/thab1/hunters/h1-6.mp3"]= 6
+TauntDurationFix["taunts/thab1/hunters/h1-7.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/h1-8.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/h1-9.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/h1-10.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-11.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-12.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/h1-13.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/h1-15.mp3"]= 6
+TauntDurationFix["taunts/thab1/hunters/h1-16.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-17.mp3"]= 8
+TauntDurationFix["taunts/thab1/hunters/h1-18.mp3"]= 8
+TauntDurationFix["taunts/thab1/hunters/h1-19.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/h1-20.mp3"]= 5
+TauntDurationFix["taunts/thab1/hunters/hail.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/he_man2.mp3"]= 10
+TauntDurationFix["taunts/thab1/hunters/i_kill_people.mp3"]= 8
+TauntDurationFix["taunts/thab1/hunters/ill_be_back.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/jaws.mp3"]= 31
+TauntDurationFix["taunts/thab1/hunters/jaws2.mp3"]= 20
+TauntDurationFix["taunts/thab1/hunters/joker.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/liveonplanet.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/llamas.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/military.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/more_watermelon_less_crack.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/morgan2.mp3"]= 1
+TauntDurationFix["taunts/thab1/hunters/oh_yea_he_will_pay.mp3"]= 5
+TauntDurationFix["taunts/thab1/hunters/out_of_gum.mp3"]= 5
+TauntDurationFix["taunts/thab1/hunters/overture.mp3"]= 28
+TauntDurationFix["taunts/thab1/hunters/pacino.mp3"]= 7
+TauntDurationFix["taunts/thab1/hunters/predator.mp3"]= 7
+TauntDurationFix["taunts/thab1/hunters/pulp_fiction.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/retard.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/run_bitch_run.mp3"]= 3
+TauntDurationFix["taunts/thab1/hunters/the_office.mp3"]= 10
+TauntDurationFix["taunts/thab1/hunters/the_shining.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/threat_neutralized.mp3"]= 2
+TauntDurationFix["taunts/thab1/hunters/thx_intro.mp3"]= 14
+TauntDurationFix["taunts/thab1/hunters/vader.mp3"]= 28
+TauntDurationFix["taunts/thab1/hunters/you_dont_know_the_power.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/you_shall_not_pass.mp3"]= 4
+TauntDurationFix["taunts/thab1/hunters/you_underestimate_the_power.mp3"]= 4
+
+TauntDurationFix["taunts/thab1/props/1-1.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/1-21.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/1-24.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/1-37.mp3"]= 10
+TauntDurationFix["taunts/thab1/props/1-38.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/1-39.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/1-40.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/1-41.mp3"]= 12
+TauntDurationFix["taunts/thab1/props/1-43.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/1-44.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/1-47.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/1-50.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/1-51.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/1-57.mp3"]= 50
+TauntDurationFix["taunts/thab1/props/1-58.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/1-59.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/1-62.mp3"]= 11
+TauntDurationFix["taunts/thab1/props/1-63.mp3"]= 21
+TauntDurationFix["taunts/thab1/props/1-64.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/1-65.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/1-66.mp3"]= 21
+TauntDurationFix["taunts/thab1/props/1-68.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/1-69.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/1-72.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/1-73.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/20th_century_fox.mp3"]= 20
+TauntDurationFix["taunts/thab1/props/9000.mp3"]= 7
+TauntDurationFix["taunts/thab1/props/aaah.mp3"]= 11
+TauntDurationFix["taunts/thab1/props/allyourbasearebelongtous.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/annoying_sound.mp3"]= 7
+TauntDurationFix["taunts/thab1/props/another_one_bites_the_dust.mp3"]= 24
+TauntDurationFix["taunts/thab1/props/apache.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/atatata.mp3"]= 21
+TauntDurationFix["taunts/thab1/props/ateam.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/badger.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/balls_of_steel.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/banana_phone.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/banana-bus.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/bananas-are-good.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/barbiegirl.mp3"]= 23
+TauntDurationFix["taunts/thab1/props/barrelroll.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/baywatch.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/bennyhill.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/billymays1.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/billymays2.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/billymays3.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/billymays4.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/billymays5.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/billymays6.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/billymays7.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/billymays8.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/billymays9.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/billymays10.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/bird_word.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/blablabla.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/bobdylan.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/brodyquest1.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/brodyquest2.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/butters.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/bye_have_a_great_time.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/cableguy.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/call_me_maybe.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/callonme.mp3"]= 8
+TauntDurationFix["taunts/thab1/props/cant_touch_this.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/carelesswhisper.mp3"]= 13
+TauntDurationFix["taunts/thab1/props/carhonk.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/celebration.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/chacarron.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/charge.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/claptrap-follow-the-silly-sound.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/claptrap-haha-im-alive.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/claptrap-im-over-here.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/claptrap-oh-no-going-to-die.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/claptrap-please-dont-shot-me.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/claptrap-this-way.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/claptrap-wait-is-that.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/club_music.mp3"]= 33
+TauntDurationFix["taunts/thab1/props/club_music2.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/clubsound.mp3"]= 11
+TauntDurationFix["taunts/thab1/props/cod_dub.mp3"]= 32
+TauntDurationFix["taunts/thab1/props/cornholio.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/crocodile.mp3"]= 22
+TauntDurationFix["taunts/thab1/props/darude.mp3"]= 21
+TauntDurationFix["taunts/thab1/props/daym.mp3"]= 28
+TauntDurationFix["taunts/thab1/props/derpsong.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/designed_to_be_a_moron.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/destination.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/dinkleberg.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/doctor-01.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/doctor-02.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/doctor-03.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/doctor-04.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/doctor-05.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/dodo.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/doh.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/dr_evil.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/drop_it.mp3"]= 16
+TauntDurationFix["taunts/thab1/props/ducksong.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/eclipse.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/egeland.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/epicsaxguy.mp3"]= 7
+TauntDurationFix["taunts/thab1/props/everythingisawesome.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/excited.mp3"]= 22
+TauntDurationFix["taunts/thab1/props/finalcountdown.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/gangmanstyle.mp3"]= 16
+TauntDurationFix["taunts/thab1/props/gaybar.mp3"]= 22
+TauntDurationFix["taunts/thab1/props/get_hyper.mp3"]= 12
+TauntDurationFix["taunts/thab1/props/gettothechopper.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/ghostbusters.mp3"]= 29
+TauntDurationFix["taunts/thab1/props/girlscup.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/go_away_or_i_shall.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/guilestheme.mp3"]= 12
+TauntDurationFix["taunts/thab1/props/ha_gay.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/haddaway.mp3"]= 33
+TauntDurationFix["taunts/thab1/props/hamster_song.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/hawking.mp3"]= 25
+TauntDurationFix["taunts/thab1/props/he_man.mp3"]= 28
+TauntDurationFix["taunts/thab1/props/heff_to_be_mad.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/hello.mp3"]= 23
+TauntDurationFix["taunts/thab1/props/i_will_survive.mp3"]= 20
+TauntDurationFix["taunts/thab1/props/iliketurtles2.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/ill_be_back.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/im_blue.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/indiana_jones.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/itsatrap.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/jackass.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/jeopardy.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/kermit-corpse.mp3"]= 7
+TauntDurationFix["taunts/thab1/props/kermit-gonna-make.mp3"]= 7
+TauntDurationFix["taunts/thab1/props/kermit-the-world.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/leeroy.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/lets_get_it_on.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/lets_get_ready_to.rumble.mp3"]= 20
+TauntDurationFix["taunts/thab1/props/link_excuseme.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/living_on_a_prayer.mp3"]= 16
+TauntDurationFix["taunts/thab1/props/mahnamahna.mp3"]= 26
+TauntDurationFix["taunts/thab1/props/mario.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/miracle.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/morgan1.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/my_milkshake.mp3"]= 29
+TauntDurationFix["taunts/thab1/props/my-heart-will-go-on.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/myrr_scream.mp3"]= 13
+TauntDurationFix["taunts/thab1/props/nature_scary.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/negative.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/nomnom.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/not_unusual.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/nyan_cat.mp3"]= 31
+TauntDurationFix["taunts/thab1/props/oh_yea_he_will_pay.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/ok_i_will_tell_you.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/please_come_again.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/pokemon.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/pokerface.mp3"]= 16
+TauntDurationFix["taunts/thab1/props/portal_stillalive.mp3"]= 21
+TauntDurationFix["taunts/thab1/props/prince_of_bel_air.mp3"]= 10
+TauntDurationFix["taunts/thab1/props/puddi.mp3"]= 22
+TauntDurationFix["taunts/thab1/props/rock_you_like_a_hurricane.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/sark-01.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/scatman.mp3"]= 30
+TauntDurationFix["taunts/thab1/props/seananners_intro.mp3"]= 10
+TauntDurationFix["taunts/thab1/props/sexy_thang.mp3"]= 29
+TauntDurationFix["taunts/thab1/props/shamwow.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/skrillex_goat.mp3"]= 16
+TauntDurationFix["taunts/thab1/props/smoke-weed.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/snaaake.mp3"]= 6
+TauntDurationFix["taunts/thab1/props/snooping.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/sparta.mp3"]= 3
+TauntDurationFix["taunts/thab1/props/spongebob.mp3"]= 28
+TauntDurationFix["taunts/thab1/props/spongebob2.mp3"]= 24
+TauntDurationFix["taunts/thab1/props/stamp_on_the_ground.mp3"]= 24
+TauntDurationFix["taunts/thab1/props/staying_alive.mp3"]= 15
+TauntDurationFix["taunts/thab1/props/suckballs.mp3"]= 20
+TauntDurationFix["taunts/thab1/props/tard.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/tdad.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/theoneandonly.mp3"]= 4
+TauntDurationFix["taunts/thab1/props/too_sexy.mp3"]= 19
+TauntDurationFix["taunts/thab1/props/transformers.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/troll1.mp3"]= 25
+TauntDurationFix["taunts/thab1/props/troll2.mp3"]= 18
+TauntDurationFix["taunts/thab1/props/trololololol.mp3"]= 5
+TauntDurationFix["taunts/thab1/props/unicorns.mp3"]= 29
+TauntDurationFix["taunts/thab1/props/universal.mp3"]= 24
+TauntDurationFix["taunts/thab1/props/walking_on_sunshine.mp3"]= 28
+TauntDurationFix["taunts/thab1/props/walla_walla_bing_bang.mp3"]= 14
+TauntDurationFix["taunts/thab1/props/wanna_rock.mp3"]= 28
+TauntDurationFix["taunts/thab1/props/what_does_the_fox_say.mp3"]= 32
+TauntDurationFix["taunts/thab1/props/what_is_wrong_with_you.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/woah.mp3"]= 32
+TauntDurationFix["taunts/thab1/props/wololo.mp3"]= 2
+TauntDurationFix["taunts/thab1/props/woohoo.mp3"]= 1
+TauntDurationFix["taunts/thab1/props/wubwub.mp3"]= 23
+TauntDurationFix["taunts/thab1/props/yo_adrian.mp3"]= 17
+TauntDurationFix["taunts/thab1/props/yodel-franz-lang.mp3"]= 13
+TauntDurationFix["taunts/thab1/props/zoidberg.mp3"]= 8
+
+
+
+GM:LoadTaunts()

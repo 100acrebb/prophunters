@@ -39,8 +39,15 @@ concommand.Add("ph_taunt", function (ply, com, args, full)
 	if snd:match("%.mp3$") then
 		duration = t.soundDurationOverride or 1
 	end
+	
+	local dcbl = SNDLVL_NORM
+	local volm = 0.75
+	if ply:Team() == 3 then --props
+		dcbl = SNDLVL_100dB
+		volm = 1
+	end
 
-	ply:EmitSound(snd)
+	ply:EmitSound(snd,dcbl, 100, volm, CHAN_AUTO)
 	ply.Taunting = CurTime() + duration + 0.1
 	ply.TauntAmount = (ply.TauntAmount or 0) + 1
 end)
@@ -81,7 +88,14 @@ concommand.Add("ph_taunt_random", function (ply, com, args, full)
 		duration = t.soundDurationOverride or 1
 	end
 
-	ply:EmitSound(snd)
+	local dcbl = SNDLVL_NORM
+	local volm = 0.75
+	if ply:Team() == 3 then --props
+		dcbl = SNDLVL_100dB
+		volm = 1
+	end
+	
+	ply:EmitSound(snd,dcbl, 100, volm, CHAN_AUTO)
 	ply.Taunting = CurTime() + duration + 0.1
 	ply.TauntAmount = (ply.TauntAmount or 0) + 1
 end)

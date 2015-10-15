@@ -1,0 +1,9 @@
+"Gamemode"
+{
+	"base"		"base"
+	"title"		"Prop Hunt"
+	"maps"		"^cs_|^ph_"
+	"menusystem"	"1"
+	"version" 	"1.2.1"
+	"workshopid"	"260275546"
+}

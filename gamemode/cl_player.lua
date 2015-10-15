@@ -19,7 +19,9 @@ net.Receive("heist_money", function (len)
 end)
 
 function GM:PlayerFootstep(ply, pos, foot, sound, volume, filter )
-	-- if ply:Team() == 3 then
-	-- 	return true
-	-- end
+	if ply:Team() == 3 and self:GetGameState() == 1 then
+	 	return true
+	end
+	 
+
 end

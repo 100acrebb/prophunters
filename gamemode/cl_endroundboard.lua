@@ -123,6 +123,8 @@ end)
 
 function GM:OpenEndRoundMenu()
 	chat.Close()
+	HatsChat:Hide()
+	
 	if IsValid(menu) then
 		menu.ChatTextEntry:SetText("")
 		menu:SetVisible(true)
@@ -139,7 +141,7 @@ function GM:OpenEndRoundMenu()
 	menu:SetKeyboardInputEnabled(false)
 	menu:SetDeleteOnClose(false)
 	menu:SetDraggable(false)
-	menu:ShowCloseButton(false)
+	menu:ShowCloseButton(true)
 	menu:DockPadding(8, 8, 8, 8)
 
 	local matBlurScreen = Material( "pp/blurscreen" )

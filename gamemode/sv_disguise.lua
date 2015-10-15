@@ -3,17 +3,16 @@ include("sh_disguise.lua")
 local PlayerMeta = FindMetaTable("Player")
 local EntityMeta = FindMetaTable("Entity")
 
-function GM:PlayerDisguise(ply)
-
+function GM:PlayerDisguise(ply, replaceEnt)
 	if ply:Team() == 3 then
 		local tr = ply:GetPropEyeTrace()
 		if IsValid(tr.Entity) then
-			if tr.HitPos:Distance(tr.StartPos) < 100 then
+			if tr.HitPos:Distance(tr.StartPos) < 200 then
 				if ply:CanDisguiseAsProp(tr.Entity) then
-					if ply.LastDisguise && ply.LastDisguise + 1 > CurTime() then
+					if ply.LastDisguise && ply.LastDisguise + 3 > CurTime() then
 						return
 					end
-					ply:DisguiseAsProp(tr.Entity)
+					ply:DisguiseAsProp(tr.Entity, replaceEnt)
 				end
 			else
 				-- ply:ChatPrint("too far " .. math.floor(tr.HitPos:Distance(tr.StartPos)))
@@ -22,10 +21,13 @@ function GM:PlayerDisguise(ply)
 	end
 end
 
-function PlayerMeta:DisguiseAsProp(ent)
+
+
+
+function PlayerMeta:DisguiseAsProp(ent, replaceEnt)
 
 	local hullxy, hullz = ent:GetPropSize()
-	if !self:CanFitHull(hullxy, hullxy, hullz) then
+	if !self:CanFitHull(hullxy, hullxy, hullz) then --and not replaceEnt then
 		local ct = ChatText()
 		ct:Add("Not enough room to change", Color(255, 50, 50))
 		ct:Send(self)
@@ -85,7 +87,9 @@ function PlayerMeta:DisguiseAsProp(ent)
 	self:SetViewOffset(offset)
 	self:SetViewOffsetDucked(offset)
 
-	self:EmitSound("weapons/bugbait/bugbait_squeeze" .. math.random(1, 3) .. ".wav")
+	if GAMEMODE:GetGameState() ~= 1 then
+		self:EmitSound("weapons/bugbait/bugbait_squeeze" .. math.random(1, 3) .. ".wav")
+	end
 	self.LastDisguise = CurTime()
 
 	local eff = EffectData()
@@ -93,6 +97,19 @@ function PlayerMeta:DisguiseAsProp(ent)
 	eff:SetScale(hullxy)
 	eff:SetMagnitude(hullz)
 	util.Effect("ph_disguise", eff, true, true)
+	
+	
+	if replaceEnt then
+		local gp = ent:GetPos()
+		local ga = ent:GetAngles()
+		
+		ent:Remove()
+		
+		--self:SetPos(gp)
+		--dent:SetPos(gp)
+		--self:SetAngles(ga)
+		--dent:SetAngles(ga)
+	end
 end
 
 function PlayerMeta:IsDisguised()
@@ -128,7 +145,7 @@ function PlayerMeta:DisguiseLockRotation()
 	local hullx = math.Round((maxs.x - mins.x) / 2)
 	local hully = math.Round((maxs.y - mins.y) / 2)
 	local hullz = math.Round(maxs.z - mins.z)
-	if !self:CanFitHull(hullx, hully, hullz) then
+	if 1==2 and !self:CanFitHull(hullx, hully, hullz) then
 		local ct = ChatText()
 		ct:Add("Not enough room to lock rotation, move into a more open area", Color(255, 50, 50))
 		ct:Send(self)
@@ -146,7 +163,7 @@ function PlayerMeta:DisguiseUnlockRotation()
 	local mins = self:GetNWVector("disguiseMins")
 	local hullxy = math.Round(math.Max(maxs.x - mins.x, maxs.y - mins.y) / 2)
 	local hullz = math.Round(maxs.z - mins.z)
-	if !self:CanFitHull(hullxy, hullxy, hullz) then
+	if 1==2 and !self:CanFitHull(hullxy, hullxy, hullz) then
 		local ct = ChatText()
 		ct:Add("Not enough room to unlock rotation, move into a more open area", Color(255, 50, 50))
 		ct:Send(self)

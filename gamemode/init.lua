@@ -29,8 +29,8 @@ include("sv_statistics.lua")
 include("sv_bot.lua")
 include("sv_disguise.lua")
 include("sv_teams.lua")
-include("sv_taunt.lua")
-include("sv_mapvote.lua")
+--include("sv_taunt.lua")
+--include("sv_mapvote.lua")
 include("sv_bannedmodels.lua")
 include("sv_version.lua")
 
@@ -42,25 +42,25 @@ util.AddNetworkString("player_model_sex")
 resource.AddFile("materials/melonbomber/skull.png")
 resource.AddFile("materials/melonbomber/skull_license.txt")
 
-GM.VoiceHearTeam = CreateConVar("ph_voice_hearotherteam", 0, bit.bor(FCVAR_NOTIFY), "Can we hear the voices of opposing teams" )
+GM.VoiceHearTeam = CreateConVar("ph_voice_hearotherteam", 1, bit.bor(FCVAR_NOTIFY), "Can we hear the voices of opposing teams" )
 GM.VoiceHearDead = CreateConVar("ph_voice_heardead", 1, bit.bor(FCVAR_NOTIFY), "Can we hear the voices of dead players and spectators" )
 GM.RoundLimit = CreateConVar("ph_roundlimit", 10, bit.bor(FCVAR_NOTIFY), "Number of rounds before mapvote" )
 GM.StartWaitTime = CreateConVar("ph_mapstartwait", 30, bit.bor(FCVAR_NOTIFY), "Number of seconds to wait for players on map start before starting round" )
 GM.HunterDamagePenalty = CreateConVar("ph_hunter_dmgpenalty", 3, bit.bor(FCVAR_NOTIFY), "Amount of damage a hunter should take for shooting an incorrect prop" )
 GM.HunterGrenadeAmount = CreateConVar("ph_hunter_smggrenades", 1, bit.bor(FCVAR_NOTIFY), "Amount of SMG grenades hunters should spawn with" )
-GM.DeadSpectateRoam = CreateConVar("ph_dead_canroam", 0, bit.bor(FCVAR_NOTIFY), "Can dead players use the roam spectate mode" )
+GM.DeadSpectateRoam = CreateConVar("ph_dead_canroam", 1, bit.bor(FCVAR_NOTIFY), "Can dead players use the roam spectate mode" )
 
 function GM:Initialize()
 	self.RoundWaitForPlayers = CurTime()
 
 	self.DeathRagdolls = {}
 	self:SetupStatisticsTables()
-	self:LoadMapList()
+	--self:LoadMapList()
 	self:LoadBannedModels()
 end
 
 function GM:InitPostEntity() 
-	self:CheckForNewVersion()
+	--self:CheckForNewVersion()
 	self:InitPostEntityAndMapCleanup()
 
 	RunConsoleCommand("mp_show_voice_icons", "0")
@@ -104,6 +104,11 @@ function GM:OnStartRound()
 end
 
 function GM:EntityTakeDamage( ent, dmginfo )
+
+	if bit.band(dmginfo:GetDamageType(), DMG_CRUSH) == DMG_CRUSH then
+		return false
+	end
+	
 	if IsValid(ent) then
 		if ent:IsPlayer() then
 			if IsValid(dmginfo:GetAttacker()) then
@@ -159,7 +164,7 @@ function GM:ShowHelp(ply)
 	net.Send(ply)
 end
 
-function GM:ShowSpare1(ply)
-	net.Start("open_taunt_menu")
-	net.Send(ply)
-end
+--function GM:ShowSpare1(ply)
+--	net.Start("open_taunt_menu")
+--	net.Send(ply)
+--end

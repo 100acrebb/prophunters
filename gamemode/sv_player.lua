@@ -18,9 +18,9 @@ function GM:PlayerInitialSpawn(ply)
 
 	self.LastPlayerSpawn = CurTime()
 
-	if self:IsMapVoting() then
-		self:NetworkMapVoteStart(ply)
-	end
+	--if self:IsMapVoting() then  MTZ
+	--	self:NetworkMapVoteStart(ply)
+	--end
 end
 
 function GM:PlayerLoadedLocalPlayer(ply)
@@ -392,8 +392,9 @@ end
 function GM:KeyPress(ply, key)
 	if ply:Alive() then
 		if key == IN_ATTACK then
-			self:PlayerDisguise(ply)
+			self:PlayerDisguise(ply, false)
 		elseif key == IN_ATTACK2 then
+			self:PlayerDisguise(ply, true)
 		end
 	end
 end
@@ -433,7 +434,7 @@ end
 
 
 function GM:PlayerCanSeePlayersChat( text, teamOnly, listener, speaker )
-	if !IsValid(speaker) then return false end
+	if !IsValid(speaker) then return true end
 	local canhear = self:PlayerCanHearChatVoice(listener, speaker, "chat", teamOnly) 
 	return canhear
 end

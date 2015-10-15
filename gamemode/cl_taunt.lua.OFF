@@ -105,6 +105,13 @@ local function fillCats(clist, mlist)
 end
 
 local function openTauntMenu()
+
+	--if LocalPlayer():Team() == 2 and GAMEMODE.GameState == 2 then
+	--	notification.AddLegacy( "Hunters can't taunt after round start", 0, 3 )
+	--	return
+	--end
+
+
 	if IsValid(menu) then
 		fillCats(menu.CatList, menu.TauntList)
 		fillList(menu.TauntList, menu.CurrentTaunts, menu.CurrentTauntCat)
@@ -133,7 +140,7 @@ local function openTauntMenu()
 		local tw,th = surface.GetTextSize(t)
 		draw.ShadowText(t, "RobotoHUD-25", 8, 2, Color(49, 142, 219), 0)
 
-		draw.ShadowText("make annoying fart sounds", "RobotoHUD-L15", 8 + tw + 16, 2 + th * 0.90, Color(220, 220, 220), 0, 4)
+		--draw.ShadowText("make annoying fart sounds", "RobotoHUD-L15", 8 + tw + 16, 2 + th * 0.90, Color(220, 220, 220), 0, 4)
 	end
 
 	local leftpnl = vgui.Create("DPanel", menu)
