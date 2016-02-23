@@ -450,6 +450,10 @@ local awards = {
 	PropDamage = {
 		name = "Angriest Player",
 		desc = "Hunter who shot at props the most"
+	},
+	MostMovement = {
+		name = "Most Movement",
+		desc = "Prop who moved the most"
 	}
 }
 
@@ -514,6 +518,11 @@ function GM:EndRoundMapVote()
 			local path = "maps/thumb/" .. map .. ".png"
 			if file.Exists(path, "GAME") then
 				png = Material(path, "noclamp")
+			else
+				local path = "materials/maps/" .. map .. ".png"
+				if file.Exists(path, "GAME") then
+					png = Material(path, "noclamp")
+				end
 			end
 		end
 		local dname = map:gsub("^%a%a%a?_", ""):gsub("_?v[%d%.%-]+$", "")

@@ -4,7 +4,7 @@ GM.Author 	= "MechanicalMind"
 // Credits to waddlesworth for the logo and icon
 GM.Email 	= ""
 GM.Website 	= "http://codingconcoctions.com/"
---GM.Version 	= "1.2.1"
+--GM.Version 	= "1.3"
 
 TEAM_SPECTATOR = 1
 TEAM_HUNTER = 2
