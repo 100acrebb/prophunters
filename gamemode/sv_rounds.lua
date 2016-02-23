@@ -173,12 +173,14 @@ function GM:EndRound(reason)
 		ct:SendAll()
 		winningTeam = 3
 	end
+	self.LastRoundResult = reason
 
 	self.PlayerAwards = {}
 
 	local propPly, propDmg = nil, 0
 	local killsPly, killsAmo = nil, 0
-	local movePly, moveAmo
+	local leastMovePly, leastMoveAmo
+	local mostMovePly, mostMoveAmo
 	local tauntsPly, tauntsAmo = nil, 0
 	for k, ply in pairs(self:GetPlayingPlayers()) do
 
@@ -204,9 +206,15 @@ function GM:EndRound(reason)
 		else
 
 			// get prop with least movement
-			if moveAmo == nil || ply.PropMovement < moveAmo then
-				moveAmo = ply.PropMovement
-				movePly = ply
+			if leastMoveAmo == nil || ply.PropMovement < leastMoveAmo then
+				leastMoveAmo = ply.PropMovement
+				leastMovePly = ply
+			end
+			
+			// get prop with most movement
+			if mostMoveAmo == nil || ply.PropMovement > mostMoveAmo then
+				mostMoveAmo = ply.PropMovement
+				mostMovePly = ply
 			end
 
 			// get prop with most taunts
@@ -221,8 +229,12 @@ function GM:EndRound(reason)
 		self.PlayerAwards["PropDamage"] = propPly
 	end
 
-	if movePly then
-		self.PlayerAwards["LeastMovement"] = movePly
+	if leastMovePly then
+		self.PlayerAwards["LeastMovement"] = leastMovePly
+	end
+	
+	if mostMovePly then
+		self.PlayerAwards["MostMovement"] = mostMovePly
 	end
 	
 	if killsPly then
@@ -342,7 +354,9 @@ function GM:RoundsThink()
 				self:SetGameState(4)
 				MapVote.Start()
 			else
-				self:SwapTeams()
+				if self.LastRoundResult != 3 || !self.PropsWinStayProps:GetBool() then
+					self:SwapTeams()
+				end
 				self:SetupRound()
 			end
 		end
