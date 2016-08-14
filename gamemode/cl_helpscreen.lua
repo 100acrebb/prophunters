@@ -18,13 +18,18 @@ Prop Hunters is a gamemode based on the classic Prop Hunt. I've added better loo
 
 
 ==CONTROLS==
-LEFT CLICK - Disguises as the prop you are looking at
+LEFT CLICK - Disguises you as the prop you are looking at (duplicates it)
+RIGHT CLICK - Disguises you as the prop you are looking at (without duplication)
 C - Locks your prop's rotation when disguised
+F2 - PointShop
 F3 - Taunt
 
 ==OBJECTIVES==
 The aim of the hunters is to find and kill all the props.
 The aim of the props is to hide from the hunters and not get killed.
+
+
+Props will AUTOTAUNT every minute if they don't taunt manually, so be sure to keep those taunts rolling.
 ]])
 
 local function colMul(color, mul)

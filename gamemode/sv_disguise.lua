@@ -29,7 +29,7 @@ function PlayerMeta:DisguiseAsProp(ent, replaceEnt)
 	local hullxy, hullz = ent:GetPropSize()
 	if !self:CanFitHull(hullxy, hullxy, hullz) then --and not replaceEnt then
 		local ct = ChatText()
-		ct:Add("Not enough room to change", Color(255, 50, 50))
+		ct:Add("Not enough room to change. Try moving around a bit or looking at a different spot on the prop. ", Color(255, 50, 50))
 		ct:Send(self)
 		return
 	end
